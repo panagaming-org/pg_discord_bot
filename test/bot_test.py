@@ -42,6 +42,5 @@ async def test_raid_attack(ctx, *, mensaje: str = "¡Aviso importante! [Enlace: 
     await ctx.send(f"✅ Simulación finalizada. Se intentó enviar a {len(tasks)} canales.")    
     
 
-
 bot.run(TOKEN)
     

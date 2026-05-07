@@ -49,15 +49,5 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-async def handle_flood(message):
-    user_id = message.author.id
-    guild = message.guild
-    member = guild.get_member(user_id)
-
-    # Banear al usuario
-    await guild.ban(member, reason=BAN_REASON)
-    print(f"Usuario {member} ha sido baneado por flood.")
-
-
 if __name__ == "__main__":
     bot.run(TOKEN)
