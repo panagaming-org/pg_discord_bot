@@ -21,7 +21,6 @@ FLOOD_THRESHOLD = 5      # Máximo de mensajes permitidos
 FLOOD_WINDOW = 3         # Segundos en los que ocurre el flood
 BAN_REASON = "Detección automática de Flood"
 
-
 dotenv.load_dotenv()
 TOKEN = os.getenv('token')
 
