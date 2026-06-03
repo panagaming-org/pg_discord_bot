@@ -1,8 +1,7 @@
 {
     "backend_server": "http://localhost:8000",
     "discord": {
-        "member_role_id": 123456,
-        "staff_role_id": 123456,
-        "muted_role_id": 123456
+        "member_role_id": 966061360817528852,
+        "aislated_role_id": 1511469577396289617
     }
 }

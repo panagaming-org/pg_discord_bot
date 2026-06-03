@@ -1,9 +1,14 @@
 import os
 import discord
 from discord.ext import commands
+import extensions as extensions
 
 REGEX_SPAM = r"/(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite|t\.me|telegram\.me|chat\.whatsapp\.com)\/[a-zA-Z0-9-]{3,}/gi"
 REGEX_LINK = r"(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?"
+
+'''
+VALIDACION DE ENLACES ENVIADOS
+'''
 
 async def links_from_message(message):
     links = []
@@ -32,3 +37,13 @@ async def is_server_spam(message):
 
 async def is_banned_link(message):
     return False  # Devuelve True si el mensaje contiene un enlace prohibido, de lo contrario False
+
+'''
+VALIDACION DE USUARIOS
+'''
+
+async def is_user_verified(user):
+    user_role = await extensions.get_verified_role_id()
+    if discord.utils.get(user.roles, id=user_role):
+        return True
+    return False

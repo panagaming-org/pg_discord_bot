@@ -4,15 +4,13 @@ from discord.utils import *
 import dotenv
 import os
 import datetime
+import json
+import controller.actions_controller as actions
+import controller.scan_controller as scan
 
 intents = discord.Intents.all()
 intents.members = True
 bot = commands.Bot(command_prefix="/", intents=intents)
-
-USER_ROLE_ID = 1239939068905914368
-MEMBER_ROLE_ID = 852500184662409216
-STAFF_ROLE_ID = 856835937816674314
-EJECUTIVE_ROLE_ID = 889578160495140898
 
 user_history = {}
 
@@ -24,6 +22,13 @@ BAN_REASON = "Detección automática de Flood"
 dotenv.load_dotenv()
 TOKEN = os.getenv('token')
 
+settings = {}
+with open("settings.json") as settings:
+    settings = json.load(settings)
+
+async def get_user_by_id(id_user):
+    user = bot.fetch_user(id_user)
+    return user
 
 @bot.event
 async def on_ready():
@@ -42,9 +47,12 @@ async def on_message(message):
     user_history[user_id] = [t for t in user_history[user_id] if (now - t).total_seconds() < FLOOD_WINDOW]
 
     # Verificar si excede el límite
-    
     if len(user_history[user_id]) > FLOOD_THRESHOLD:
-        print("Usuario {} ha superado el límite de mensajes.".format(message.author))
+        user = await get_user_by_id(user_id)
+        if scan.is_user_verified(user):
+            print("Usuario no verificado, porcedemos a banear!")
+        else:
+            actions.block_user(user)
     
     await bot.process_commands(message)
 
