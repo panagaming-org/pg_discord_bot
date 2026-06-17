@@ -5,8 +5,10 @@ import dotenv
 import os
 import datetime
 import json
-import controller.actions_controller as actions
 import controller.scan_controller as scan
+import utils.list_utils as list_utils
+import instance.database as database
+import settings.settings as settings
 
 intents = discord.Intents.all()
 intents.members = True
@@ -22,13 +24,67 @@ BAN_REASON = "Detección automática de Flood"
 dotenv.load_dotenv()
 TOKEN = os.getenv('token')
 
-settings = {}
-with open("settings.json") as settings:
-    settings = json.load(settings)
-
 async def get_user_by_id(id_user):
     user = bot.fetch_user(id_user)
     return user
+
+async def get_guild():
+    guild_id = await settings.get_guild_id()
+    guild = bot.get_guild(guild_id)
+    return guild
+
+async def get_role_by_id(role_id):
+    guild_id = await settings.get_guild_id()
+    
+    guild = bot.get_guild(guild_id)
+    if guild is None:
+        print(f"❌ No se pudo encontrar el servidor con ID {guild_id}")
+        return None
+
+    role = guild.get_role(role_id)
+    return role
+
+async def user_has_any_role(user) -> bool:
+    return len(user.roles) > 1
+
+async def block_user(user):
+    block_role_id = await settings.get_aislated_role_id()
+    role = await get_role_by_id(block_role_id)
+    if role in None:
+        print("No se ha encontrado el role de bloquear usuarios.")
+        return
+    try:
+        await user.add_role(role)
+    except discord.Forbidden:
+        print("❌ El bot no tiene permisos suficientes para asignar este rol (Jerarquía).")
+    except discord.HTTPException as e:
+        print(f"❌ Error al conectar con Discord: {e}")
+    
+async def ban_user(user, reason="No especificada"):
+    guild = await get_guild()
+
+    try:
+        await guild.ban(user, reason=reason, delete_message_seconds=604800)
+    except discord.Forbidden:
+        print(f"❌ Error: El bot no tiene permisos de 'Banear Miembros' o el usuario tiene un rol superior.")
+    except discord.HTTPException as e:
+        print(f"❌ Error de Discord al intentar banear: {e}")
+
+async def verify_message(message) -> bool:
+    valid = True
+    # Se comprueba si el mensaje tiene un enlace o no.
+    if scan.message_with_link(message):
+        # Extrae los enlaces.
+        link_list = scan.links_from_message(message)
+        
+        for link in link_list:
+            if scan.is_server_spam(link):
+                valid = False
+                break
+            if scan.is_banned_link(link):
+                valid = False
+                break
+    return valid
 
 @bot.event
 async def on_ready():
@@ -49,12 +105,22 @@ async def on_message(message):
     # Verificar si excede el límite
     if len(user_history[user_id]) > FLOOD_THRESHOLD:
         user = await get_user_by_id(user_id)
-        if scan.is_user_verified(user):
+        if not user_has_any_role(user):
             print("Usuario no verificado, porcedemos a banear!")
-        else:
-            actions.block_user(user)
+            await ban_user(user)
+            return
+        
+        await block_user(user)
+        return
     
+    if not verify_message(message):
+        user = await get_user_by_id(user_id)
+        if not user_has_any_role(user):
+            await ban_user(user, reason="Has empezado a hacer Spam nada más unirte.")
+            return
+
     await bot.process_commands(message)
 
 if __name__ == "__main__":
+    database.initialice_db()
     bot.run(TOKEN)
