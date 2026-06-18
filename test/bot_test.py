@@ -40,7 +40,15 @@ async def test_raid_attack(ctx, *, mensaje: str = "¡Aviso importante! [Enlace: 
     await asyncio.gather(*tasks, return_exceptions=True)
     
     await ctx.send(f"✅ Simulación finalizada. Se intentó enviar a {len(tasks)} canales.")    
-    
 
-bot.run(TOKEN)
-    
+@bot.command()
+async def test_banned_link(ctx):
+    message = """
+        Hola soy Lourdes, seguidme a mi Onlyfans.
+        Para hobres altos, musculosos, morenos y con tatuaje, teneis un descuento del 70% para el resto que os den por culo.
+        https://onlyfans.com/chica_test_99
+    """
+    await ctx.send(message)
+
+if __name__ == "__main__":
+    bot.run(TOKEN)

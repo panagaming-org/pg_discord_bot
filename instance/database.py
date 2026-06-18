@@ -22,6 +22,3 @@ def reaload_database():
     domains = client.get_domains()
     for domain in domains:
         banned_domain_dao.add_from_json(domain)
-
-    
-    

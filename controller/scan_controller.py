@@ -24,7 +24,7 @@ async def message_with_links(message):
 
 async def links_from_message(message):
     links = []
-    for word in message.content.split():
+    for word in message.split():
         if re.match(REGEX_LINK, word):
             links.append(word)
     return links
@@ -38,17 +38,17 @@ async def links_allowed(links):
         return True
 
 async def message_with_link(message):
-    if re.search(REGEX_LINK, message.content):
+    if re.search(REGEX_LINK, message):
         return True 
     return False
 
 async def is_server_spam(message):
-    if re.search(REGEX_SPAM, message.content):
+    if re.search(REGEX_SPAM, message):
         return True
     return False
 
 async def is_banned_link(domain) -> bool:
     banned = False
-    if banned_domain_dao.get_by_domain(domain):
+    if await banned_domain_dao.get_by_domain(domain):
         banned = True
     return banned
