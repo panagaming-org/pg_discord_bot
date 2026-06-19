@@ -3,6 +3,9 @@ import model.dao.user_warn_dao as user_warn_dao
 async def create_user_warn(id_user):
     await user_warn_dao.add_user_warn(id_user, 3)
 
+async def get_by_user_id(id_user):
+    return await user_warn_dao.get_by_user_id(id_user)
+
 async def rest_user_points(id_user):
     warn_user = await user_warn_dao.get_by_user_id(id_user)
     if not warn_user:
@@ -14,4 +17,4 @@ async def rest_user_points(id_user):
         )
 
 async def user_without_points(id_user) -> bool:
-    return True if await user_warn_dao.warn_without_points(id_user) else False
+    return await user_warn_dao.warn_without_points(id_user)

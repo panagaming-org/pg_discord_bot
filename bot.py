@@ -11,10 +11,12 @@ import instance.database as database
 import settings.settings as settings
 import utils.url_utils as url_utils
 import controller.user_warn_controller as user_warn_controller
+import component.embeds as embeds
 
-intents = discord.Intents.all()
-intents.message_content = True
+intents = discord.Intents.default()
+intents.guilds = True
 intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(command_prefix="/", intents=intents)
 
@@ -27,6 +29,17 @@ FLOOD_BAN_REASON = "Detección automática de Flood"
 
 dotenv.load_dotenv()
 TOKEN = os.getenv('token')
+
+async def get_guild():
+    guild_id = await settings.get_guild_id()
+    guild = await bot.get_guild(guild_id)
+    return guild
+
+'''
+*******************************************
+*************** [Users] *******************
+*******************************************
+'''
 
 async def get_user_by_id(guild, id_user):
     user = await guild.fetch_member(id_user)
@@ -43,8 +56,14 @@ async def get_role_by_id(role_id):
     role = guild.get_role(role_id)
     return role
 
+'''
+***************************************
+********** [User Roles] ***************
+***************************************
+'''
 async def user_has_any_role(user) -> bool:
-    return len(user.roles) > 1
+    print(len(user.roles) - 1)
+    return True if (len(user.roles) - 1) >= 1 else False
 
 async def block_user(user):
     block_role_id = await settings.get_aislated_role_id()
@@ -58,6 +77,10 @@ async def block_user(user):
         print("❌ El bot no tiene permisos suficientes para asignar este rol (Jerarquía).")
     except discord.HTTPException as e:
         print(f"❌ Error al conectar con Discord: {e}")
+
+async def user_is_member(user) -> bool:
+    member_role_id = await settings.get_member_role_id()
+    return any(role.id == member_role_id for role in user.roles) 
     
 async def ban_user(user, guild, reason="No especificada"):
     try:
@@ -67,6 +90,11 @@ async def ban_user(user, guild, reason="No especificada"):
     except discord.HTTPException as e:
         print(f"❌ Error de Discord al intentar banear: {e}")
 
+'''
+************************************
+********* MESSAGES *****************
+************************************
+'''
 async def verify_message(message) -> bool:
     valid = True
     if await scan.message_with_link(message):
@@ -84,6 +112,11 @@ async def verify_message(message) -> bool:
 async def delete_message(message):
     await message.delete()
 
+'''
+**************************
+***** Bot Commands *******
+**************************
+'''
 @bot.event
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
@@ -92,11 +125,12 @@ async def on_ready():
 async def on_message(message):
     await bot.process_commands(message)
 
-    user_id = message.author.id
+    user = message.author
+    user_id = user.id
     now = datetime.datetime.now()
+    guild = message.guild
 
     message_content = message.content
-    guild = message.guild
 
     if user_id not in user_history:
         user_history[user_id] = []
@@ -105,7 +139,6 @@ async def on_message(message):
     user_history[user_id] = [t for t in user_history[user_id] if (now - t).total_seconds() < FLOOD_WINDOW]
 
     if len(user_history[user_id]) > FLOOD_THRESHOLD:
-        user = await get_user_by_id(guild, user_id)
         if not await user_has_any_role(user):
             await ban_user(user, guild, FLOOD_BAN_REASON)
             return
@@ -114,15 +147,26 @@ async def on_message(message):
         return
     
     if not await verify_message(message_content):
-        user = await get_user_by_id(guild, user_id)
         if not await user_has_any_role(user):
+            await delete_message(message)
             await ban_user(user, guild, reason="Has empezado a hacer Spam nada más unirte.")
             return
         
         await user_warn_controller.rest_user_points(user_id)
         if await user_warn_controller.user_without_points(user_id):
-            await ban_user(user, guild, reason="Has estando enviando enlaces y/o contenido inapropiado despues de ser avisado 3.")
+            await delete_message(message)
+            if not await user_is_member(user):
+                await ban_user(user, guild, reason="Has estando enviando enlaces y/o contenido inapropiado despues de ser avisado 3.")
+                return
+            
+            await block_user(user)
             return
+
+        await delete_message(message)
+        warn_user = await user_warn_controller.get_by_user_id(user_id)
+        embed = await embeds.warn_user_embed(warn_user.points)
+        await user.send(embed=embed)
+        
 
 if __name__ == "__main__":
     database.initialice_db()

@@ -50,5 +50,11 @@ async def test_banned_link(ctx):
     """
     await ctx.send(message)
 
+@bot.command()
+async def show_num_roles(ctx):
+    user = ctx.author
+    num_roles = len(user.roles)
+    print("Numero de roles: ", num_roles)
+
 if __name__ == "__main__":
     bot.run(TOKEN)

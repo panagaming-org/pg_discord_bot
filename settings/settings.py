@@ -37,3 +37,8 @@ def get_api_backend():
     settings = get_settings()
     api_url = settings['backend_server']
     return api_url
+
+async def get_member_role_id():
+    settings = await get_settings_async()
+    role_id = settings["discord"]["roles"]["member_role_id"]
+    return role_id

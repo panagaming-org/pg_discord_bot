@@ -37,4 +37,6 @@ async def update_warn(id_user, points):
 
 async def warn_without_points(id_user) -> bool:
     user_warn = await get_by_user_id(id_user)
-    return True if user_warn.points <= 0 else True
+    print(user_warn)
+    print(user_warn.points)
+    return True if user_warn.points <= 0 else False
