@@ -12,7 +12,6 @@ def get_settings():
         settings = json.load(settings)
     return settings
 
-
 async def get_verified_role_id():
     settings = await get_settings_async()
     role_id = settings['discord']['roles']['member_role_id']
@@ -42,3 +41,18 @@ async def get_member_role_id():
     settings = await get_settings_async()
     role_id = settings["discord"]["roles"]["member_role_id"]
     return role_id
+
+async def get_ban_flood_message() -> str:
+    settings = await get_settings_async()
+    message = settings["discord"]["messages"]["flood_ban"]
+    return message
+
+async def get_spam_ban_message() -> str:
+    settings = await get_settings_async()
+    message = settings["discord"]["message"]["spam_ban"]
+    return message
+
+async def get_aislate_member_flood_message() -> str:
+    settings = await get_settings_async()
+    message = settings["discord"]["messages"]["aislate_member_flood"]
+    return message

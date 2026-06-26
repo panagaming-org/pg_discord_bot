@@ -7,6 +7,11 @@
         "roles": {
             "member_role_id": 966061360817528852,
             "aislated_role_id": 1511469577396289617
+        },
+        "messages": {
+            "flood_ban": "El usuario estuvo intentando inundar el servidor con mensajes SPAM.",
+            "spam_ban": "El usuario envió mensajes SPAM despues de ser avisado varias veces por privado.",
+            "aislate_member_flood": "El miembro estuvo spameando mensajes y su cuenta parece haber sido infectado."
         }
     }
 }

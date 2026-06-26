@@ -12,6 +12,10 @@ import settings.settings as settings
 import utils.url_utils as url_utils
 import controller.user_warn_controller as user_warn_controller
 import component.embeds as embeds
+import terminal.terminal_process as terminal
+import controller.api_controller as api_controller
+import api.client_api as client_api
+
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -91,9 +95,9 @@ async def ban_user(user, guild, reason="No especificada"):
         print(f"❌ Error de Discord al intentar banear: {e}")
 
 '''
-************************************
-********* MESSAGES *****************
-************************************
+**************************************
+*********** [MESSAGES] ***************
+**************************************
 '''
 async def verify_message(message) -> bool:
     valid = True
@@ -113,9 +117,9 @@ async def delete_message(message):
     await message.delete()
 
 '''
-**************************
-***** Bot Commands *******
-**************************
+***********************************
+******** [Bot Commands] ***********
+***********************************
 '''
 @bot.event
 async def on_ready():
@@ -140,6 +144,15 @@ async def on_message(message):
 
     if len(user_history[user_id]) > FLOOD_THRESHOLD:
         if not await user_has_any_role(user):
+            ban_message = await settings.get_ban_flood_message()
+            evidence_url = await scan.links_from_message(message.content)
+            report_request = await api_controller.report_json_request(
+                user=user,
+                action="Baneo",
+                reason=ban_message,
+                evidence_url=evidence_url
+            )
+            await client_api.post_report(report_request)
             await ban_user(user, guild, FLOOD_BAN_REASON)
             return
         
@@ -166,9 +179,10 @@ async def on_message(message):
         warn_user = await user_warn_controller.get_by_user_id(user_id)
         embed = await embeds.warn_user_embed(warn_user.points)
         await user.send(embed=embed)
-        
 
 if __name__ == "__main__":
+    terminal.banner()
     database.initialice_db()
+    terminal.reloading_db()
     database.reaload_database()
     bot.run(TOKEN)

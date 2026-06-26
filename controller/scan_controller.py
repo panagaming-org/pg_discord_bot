@@ -13,7 +13,7 @@ REGEX_LINK = r"(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?"
 VALIDACION DE ENLACES ENVIADOS
 '''
 
-async def message_with_links(message):
+async def message_with_links(message) -> bool:
     has_link = False
     list_words = list_utils.from_text_to_list(message)
     for word in list_words:
@@ -29,26 +29,16 @@ async def links_from_message(message):
             links.append(word)
     return links
 
-async def links_allowed(links):
-    for link in links:
-        if is_banned_link(link):
-            return False
-        if is_server_spam(link):
-            return False
-        return True
+async def links_allowed(url):
+    is_spam = await is_server_spam(url)
+    is_banned = await is_banned_link(url)
+    return True if is_spam or is_banned else False
 
-async def message_with_link(message):
-    if re.search(REGEX_LINK, message):
-        return True 
-    return False
+async def message_with_link(url):
+    return True if re.search(REGEX_LINK, url) else False
 
-async def is_server_spam(message):
-    if re.search(REGEX_SPAM, message):
-        return True
-    return False
+async def is_server_spam(url):
+    return True if re.search(REGEX_SPAM, url) else False
 
 async def is_banned_link(domain) -> bool:
-    banned = False
-    if await banned_domain_dao.get_by_domain(domain):
-        banned = True
-    return banned
+    return True if banned_domain_dao.get_by_domain(domain) else False

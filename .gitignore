@@ -1,2 +1,90 @@
+# --- Archivos de compilación y caché ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Entornos Virtuales (Virtual Environments) ---
+.venv/
+venv/
+ENV/
 env/
+# Archivos específicos de herramientas de entornos
+.env/
+.pyenv/
+.pipenv/
+Pipfile.lock
+poetry.lock
+
+# --- Distribución y Paquetes ---
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Jupyter Notebooks ---
+.ipynb_checkpoints
+
+# --- Reportes de Pruebas / Cobertura de Código ---
+htmlcov/
+.tox/
+.nosenv/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# --- Configuraciones de Editores de Código (IDE) ---
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+
+# Carpetas temporales de otros editores
+*.swp
+*.swo
+*~
+
+# --- Variables de Entorno y Secretos ---
 .env
+.env.local
+.env.*
+.secrets
+
+# --- Logs y Bases de Datos Locales ---
+*.log
+*.db
+*.sqlite3
+
+# --- Sistema Operativo ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
