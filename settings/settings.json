@@ -10,8 +10,10 @@
         },
         "messages": {
             "flood_ban": "El usuario estuvo intentando inundar el servidor con mensajes SPAM.",
+            "spam_ban_direct": "El usuario nada más empezar a unirse al servidor ha empezado a compartir enlaces inadecuados.",
             "spam_ban": "El usuario envió mensajes SPAM despues de ser avisado varias veces por privado.",
-            "aislate_member_flood": "El miembro estuvo spameando mensajes y su cuenta parece haber sido infectado."
+            "aislate_member_flood": "El miembro estuvo spameando mensajes y su cuenta parece haber sido infectado.",
+            "aislate_member_spam": "El miebro despues de haber sido avisado como 3 veces, ha seguido enviando enlaces indecuados al servidor quedando bajo un juicio por parte del Staff y los Ejecutivos sobre su destino dentro del servidor."
         }
     }
 }

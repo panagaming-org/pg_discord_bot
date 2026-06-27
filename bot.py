@@ -16,7 +16,6 @@ import terminal.terminal_process as terminal
 import controller.api_controller as api_controller
 import api.client_api as client_api
 
-
 intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
@@ -66,7 +65,6 @@ async def get_role_by_id(role_id):
 ***************************************
 '''
 async def user_has_any_role(user) -> bool:
-    print(len(user.roles) - 1)
     return True if (len(user.roles) - 1) >= 1 else False
 
 async def block_user(user):
@@ -123,6 +121,8 @@ async def delete_message(message):
 '''
 @bot.event
 async def on_ready():
+    terminal.reloading_db()
+    database.reaload_database()
     print(f"{bot.user} has connected to Discord!")
 
 @bot.event
@@ -156,11 +156,29 @@ async def on_message(message):
             await ban_user(user, guild, FLOOD_BAN_REASON)
             return
         
+        aislate_message = await settings.get_aislate_member_flood_message()
+        evidence_url = await scan.links_from_message(message.content)
+        report_request = await api_controller.report_json_request(
+            user=user,
+            action="Aislamiento",
+            reason=aislate_message,
+            evidence_url=evidence_url
+        )
+        await client_api.post_report(report_request)
         await block_user(user)
         return
     
     if not await verify_message(message_content):
         if not await user_has_any_role(user):
+            ban_message = await settings.get_spam_ban_message()
+            evidence_url = await scan.links_from_message(message.content)
+            report_request = await api_controller.report_json_request(
+                user=user,
+                action="Baneo",
+                reason=ban_message,
+                evidence_url=evidence_url
+            )
+            await client_api.post_report(report_request)
             await delete_message(message)
             await ban_user(user, guild, reason="Has empezado a hacer Spam nada más unirte.")
             return
@@ -169,9 +187,27 @@ async def on_message(message):
         if await user_warn_controller.user_without_points(user_id):
             await delete_message(message)
             if not await user_is_member(user):
+                ban_message = await settings.get_direct_spam_ban_message()
+                evidence_url = await scan.links_from_message(message.content)
+                report_request = await api_controller.report_json_request(
+                    user=user,
+                    action="Baneo",
+                    reason=ban_message,
+                    evidence_url=evidence_url 
+                )
+                await client_api.post_report(report_request)
                 await ban_user(user, guild, reason="Has estando enviando enlaces y/o contenido inapropiado despues de ser avisado 3.")
                 return
             
+            aislate_message = await settings.get_aislate_member_spam_message()
+            evidence_url = await scan.links_from_message(message.conent)
+            report_request = await api_controller.report_json_request(
+                user=user,
+                action="Aislamiento",
+                reason=aislate_message,
+                evidence_url=evidence_url
+            )
+            await client_api.post_report(report_request)
             await block_user(user)
             return
 
@@ -183,6 +219,4 @@ async def on_message(message):
 if __name__ == "__main__":
     terminal.banner()
     database.initialice_db()
-    terminal.reloading_db()
-    database.reaload_database()
     bot.run(TOKEN)

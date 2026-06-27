@@ -22,23 +22,23 @@ async def message_with_links(message) -> bool:
             break
     return has_link
 
-async def links_from_message(message):
+async def links_from_message(message) -> list:
     links = []
     for word in message.split():
         if re.match(REGEX_LINK, word):
             links.append(word)
     return links
 
-async def links_allowed(url):
+async def links_allowed(url) -> bool:
     is_spam = await is_server_spam(url)
     is_banned = await is_banned_link(url)
-    return True if is_spam or is_banned else False
+    return True if not is_spam and not is_banned else False
 
-async def message_with_link(url):
+async def message_with_link(url) -> bool:
     return True if re.search(REGEX_LINK, url) else False
 
-async def is_server_spam(url):
+async def is_server_spam(url) -> bool:
     return True if re.search(REGEX_SPAM, url) else False
 
 async def is_banned_link(domain) -> bool:
-    return True if banned_domain_dao.get_by_domain(domain) else False
+    return True if await banned_domain_dao.get_by_domain(domain) else False

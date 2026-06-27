@@ -2,7 +2,7 @@ import json
 
 async def get_settings_async():
     settings = {}
-    with open("settings.json") as settings:
+    with open("settings/settings.json") as settings:
         settings = json.load(settings)   
     return settings
 
@@ -49,10 +49,20 @@ async def get_ban_flood_message() -> str:
 
 async def get_spam_ban_message() -> str:
     settings = await get_settings_async()
-    message = settings["discord"]["message"]["spam_ban"]
+    message = settings["discord"]["messages"]["spam_ban"]
     return message
 
 async def get_aislate_member_flood_message() -> str:
     settings = await get_settings_async()
     message = settings["discord"]["messages"]["aislate_member_flood"]
+    return message
+
+async def get_direct_spam_ban_message() -> str:
+    settings = await get_settings_async()
+    message = settings["discord"]["messages"]["spam_ban_direct"]
+    return message
+
+async def get_aislate_member_spam_message() -> str:
+    settings = await get_settings_async()
+    message = settings["discord"]["messages"]["aislate_member_spam"]
     return message
