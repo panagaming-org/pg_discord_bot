@@ -1,5 +1,5 @@
 {
-    "backend_server": "http://localhost:5000/api",
+    "backend_server": "https://pg-backend-navy.vercel.app/",
     "discord": {
         "server": {
             "id": 965729123479715871
